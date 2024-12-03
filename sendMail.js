@@ -10,39 +10,44 @@ app.use(cors());
 // Create a transporter using Gmail's SMTP
 const transporter = nodemailer.createTransport({
     service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Use false for port 587, true for port 465
     auth: {
         user: process.env.USER, // Sender email from .env
         pass: process.env.APP_PASSWORD, // App password from .env
     },
 });
 
-// Email options
-const mailOptions = {
-    from: {
-        name: 'Anasuddeen',
-        address: process.env.USER,
-    },
-    to: ['anasuddeenpp@gmail.com'], // Recipient email(s)
-    subject: 'Send Email using NodeMailer',
-    text: 'Hello world?', // Plain text body
-    html: './index.html', // HTML body
-};
-
 // Function to send email
-const sendMail = async () => {
+const sendMail = async (userEmail, mailSubject, text) => {
+    const mailOptions = {
+        from: {
+            name: 'Mailer Name',
+            address: process.env.USER,
+        },
+        to: userEmail, // Recipient email
+        subject: mailSubject,
+        text: text, // Plain text body
+        html: `<p>${text}</p>`, // Inline HTML body
+    };
+
     try {
         const info = await transporter.sendMail(mailOptions);
         console.log('Email sent successfully:', info.response);
+        return info.response;
     } catch (error) {
         console.error('Error sending email:', error.message);
     }
 };
 
-// Call the sendMail function
-sendMail();
+app.post('/api', (req,res) => {
+    // Example usage
+    const userEmail = "anasuddeenpp@gmail.com";
+    const mailSubject = 'This is the forget Password Mail';
+    const text = 'Your forget Password mail is generated';
+
+    // Call the sendMail function
+    var demoText = sendMail(userEmail, mailSubject, text);
+    console.log(demoText);
+})
 
 // Start the Express server
 const port = process.env.PORT || 5001;
